@@ -1,16 +1,17 @@
 'use client';
 
+import { createElement, type ElementType } from 'react';
+
 type Props = {
   text: string;
-  as?: keyof JSX.IntrinsicElements;
+  as?: ElementType;
   className?: string;
 };
 
-export default function GlitchText({ text, as: Tag = 'span', className = '' }: Props) {
-  return (
-    // @ts-expect-error dynamic tag
-    <Tag data-text={text} className={`glitch ${className}`}>
-      {text}
-    </Tag>
+export default function GlitchText({ text, as = 'span', className = '' }: Props) {
+  return createElement(
+    as,
+    { 'data-text': text, className: `glitch ${className}` },
+    text
   );
 }

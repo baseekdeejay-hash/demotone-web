@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
-title demotone-web :: redeploy fix
-echo === Redeploy: fix build error ===
+title demotone-web :: deploy video hero
+echo === Deploy: Video Hero con scroll-scrubbing ===
 echo.
 cd /d "O:\BASEK MUSIC PRODUCCIONS\DEMOTONE\DESIGN\demotone-web"
 
@@ -19,17 +19,17 @@ git add -A
 echo.
 
 echo Creando commit...
-git commit -m "Fix: GlitchText sin @ts-expect-error + relajar ESLint en build"
+git commit -m "Feat: video Hero con scroll-scrubbing + poster mobile"
 echo.
 
-echo Push a GitHub (esto disparara auto-redeploy en Vercel)...
+echo Push a GitHub (Vercel auto-redeploy)...
 git push origin main
 
 echo.
-echo ============================================
-echo  Push hecho.
-echo  Ve a vercel.com/dashboard y veras un nuevo
-echo  deploy en marcha automaticamente (~1-2 min).
-echo ============================================
+echo =====================================================
+echo  Push hecho. Vercel disparara nuevo build en segundos.
+echo  Sigue el progreso en vercel.com/dashboard
+echo  Cuando termine, refresca demotone.es para ver el video.
+echo =====================================================
 echo.
 pause

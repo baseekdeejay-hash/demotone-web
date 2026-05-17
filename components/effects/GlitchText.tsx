@@ -8,7 +8,11 @@ type Props = {
   className?: string;
 };
 
-export default function GlitchText({ text, as = 'span', className = '' }: Props) {
+export default function GlitchText({
+  text,
+  as = 'span',
+  className = ''
+}: Props) {
   return createElement(
     as,
     { 'data-text': text, className: `glitch ${className}` },

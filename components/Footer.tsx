@@ -20,15 +20,9 @@ export default function Footer() {
           <h3 className="eyebrow">Contacto</h3>
           <ul className="mt-3 space-y-1 font-mono text-sm text-bone-200">
             <li>
-              Booking:{' '}
-              <a className="hover:text-acid" href={`mailto:${contact.bookingEmail}`}>
-                {contact.bookingEmail}
-              </a>
-            </li>
-            <li>
-              Prensa:{' '}
-              <a className="hover:text-acid" href={`mailto:${contact.pressEmail}`}>
-                {contact.pressEmail}
+              Booking / Prensa:{' '}
+              <a className="hover:text-acid" href={`mailto:${contact.email}`}>
+                {contact.email}
               </a>
             </li>
           </ul>
@@ -38,7 +32,7 @@ export default function Footer() {
           <h3 className="eyebrow">Redes</h3>
           <ul className="mt-3 flex flex-wrap gap-3 font-mono text-xs uppercase tracking-[0.18em] text-bone-200">
             {socials.length === 0 ? (
-              <li className="text-bone-300">— próximamente —</li>
+              <li className="text-bone-300">&mdash; pr&oacute;ximamente &mdash;</li>
             ) : (
               socials.map(([k, v]) => (
                 <li key={k}>
@@ -59,7 +53,7 @@ export default function Footer() {
 
       <div className="border-t border-ink-400/60">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-2 px-6 py-5 font-mono text-[11px] uppercase tracking-[0.22em] text-bone-300 md:flex-row md:items-center">
-          <span>© {year} · {site.name} · {site.domain}</span>
+          <span>&copy; {year} &middot; {site.name} &middot; {site.domain}</span>
           <span>Hecho con ruido y groove.</span>
         </div>
       </div>

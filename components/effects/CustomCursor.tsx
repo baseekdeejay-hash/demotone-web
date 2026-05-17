@@ -3,11 +3,11 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Cursor custom industrial: punto + anillo con retardo.
- * Solo se activa en pointer fino (escritorio). En móvil/tablet no hace nada.
+ * Cursor custom: flecha tipo puntero (con contorno amarillo) + anillo retardado.
+ * Solo activo en pointer fino (escritorio).
  */
 export default function CustomCursor() {
-  const dotRef = useRef<HTMLDivElement>(null);
+  const arrowRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,8 +25,8 @@ export default function CustomCursor() {
     const onMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate3d(${mouseX - 3}px, ${mouseY - 3}px, 0)`;
+      if (arrowRef.current) {
+        arrowRef.current.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
       }
     };
 
@@ -68,11 +68,31 @@ export default function CustomCursor() {
 
   return (
     <>
+      {/* Flecha puntero — relleno negro con contorno amarillo */}
       <div
-        ref={dotRef}
-        className="pointer-events-none fixed left-0 top-0 z-[9999] h-1.5 w-1.5 rounded-full bg-acid mix-blend-difference"
+        ref={arrowRef}
+        className="pointer-events-none fixed left-0 top-0 z-[9999] -ml-[2px] -mt-[2px]"
         aria-hidden
-      />
+      >
+        <svg
+          width="20"
+          height="22"
+          viewBox="0 0 20 22"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2 2 L2 17 L6.5 13 L9.2 19.5 L12.3 18.2 L9.6 11.8 L16 11.5 Z"
+            fill="#050505"
+            stroke="#e6ff04"
+            strokeWidth="1.4"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
+
+      {/* Anillo retardado */}
       <div
         ref={ringRef}
         className="pointer-events-none fixed left-0 top-0 z-[9998] h-9 w-9 rounded-full border border-acid/70 transition-[transform,width,height,background-color] duration-200 ease-out [&.cursor-hover]:h-12 [&.cursor-hover]:w-12 [&.cursor-hover]:border-flare/70 [&.cursor-hover]:bg-acid/10"

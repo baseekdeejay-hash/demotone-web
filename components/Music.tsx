@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { ExternalLink, Play } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import Reveal from './effects/Reveal';
 import { tracks, type Track } from '@/data/content';
 
@@ -22,10 +21,10 @@ function YouTubeEmbed({ id }: { id: string }) {
 function SoundCloudEmbed({ url }: { url: string }) {
   const src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(
     url
-  )}&color=%23e6ff04&inverse=true&auto_play=false&show_user=true&hide_related=true&visual=false`;
+  )}&color=%23e6ff04&inverse=true&auto_play=false&show_user=true&hide_related=true&visual=true&show_comments=false&show_reposts=false&show_teaser=false`;
   return (
     <iframe
-      className="h-[166px] w-full"
+      className="aspect-video w-full"
       src={src}
       title="SoundCloud"
       allow="autoplay"
@@ -36,7 +35,6 @@ function SoundCloudEmbed({ url }: { url: string }) {
 }
 
 function TrackCard({ track }: { track: Track }) {
-  const [open, setOpen] = useState(false);
   const linkOut =
     track.type === 'youtube'
       ? `https://www.youtube.com/watch?v=${track.id}`
@@ -50,29 +48,10 @@ function TrackCard({ track }: { track: Track }) {
       <span className="absolute right-2 bottom-2 z-10 h-3 w-3 border-r border-b border-acid/70 opacity-0 transition-opacity group-hover:opacity-100" />
 
       <div className="relative bg-ink-900">
-        {open ? (
-          track.type === 'youtube' ? (
-            <YouTubeEmbed id={track.id} />
-          ) : (
-            <SoundCloudEmbed url={track.id} />
-          )
+        {track.type === 'youtube' ? (
+          <YouTubeEmbed id={track.id} />
         ) : (
-          <button
-            onClick={() => setOpen(true)}
-            className="relative flex aspect-video w-full items-center justify-center bg-gradient-to-br from-ink-700 via-ink-800 to-ink-900 text-bone-100 transition-colors hover:bg-ink-700"
-            aria-label={`Reproducir ${track.title}`}
-          >
-            <div className="absolute inset-0 bg-scanlines opacity-30" />
-            <span className="absolute left-3 top-3 font-mono text-[10px] uppercase tracking-[0.22em] text-bone-300">
-              {track.type === 'youtube' ? 'YOUTUBE' : 'SOUNDCLOUD'}
-            </span>
-            <span className="absolute right-3 top-3 font-mono text-[10px] uppercase tracking-[0.22em] text-acid">
-              ► PLAY
-            </span>
-            <span className="flex h-16 w-16 items-center justify-center rounded-full border border-acid bg-ink-900/70 text-acid transition-all group-hover:scale-110 group-hover:bg-acid group-hover:text-ink-900">
-              <Play size={22} fill="currentColor" />
-            </span>
-          </button>
+          <SoundCloudEmbed url={track.id} />
         )}
       </div>
 
@@ -108,7 +87,7 @@ export default function Music() {
 
       <div className="mx-auto max-w-7xl px-6">
         <Reveal>
-          <span className="eyebrow">// 02 — Discograf&iacute;a</span>
+          <span className="eyebrow">// 02 &mdash; Discograf&iacute;a</span>
         </Reveal>
         <Reveal delay={0.05}>
           <h2 className="mt-6 max-w-3xl font-display text-5xl font-bold uppercase leading-[0.95] tracking-tight text-bone-100 md:text-7xl">
@@ -117,8 +96,7 @@ export default function Music() {
         </Reveal>
         <Reveal delay={0.1}>
           <p className="mt-6 max-w-2xl text-base text-bone-200 md:text-lg">
-            Producciones originales y remixes. Pulsa para reproducir directamente desde
-            YouTube o SoundCloud.
+            Producciones originales y remixes.
           </p>
         </Reveal>
 
@@ -132,7 +110,7 @@ export default function Music() {
 
         {tracks.length === 0 ? (
           <p className="mt-10 font-mono text-sm text-bone-300">
-            — Pr&oacute;ximamente —
+            &mdash; Pr&oacute;ximamente &mdash;
           </p>
         ) : null}
       </div>

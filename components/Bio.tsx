@@ -26,7 +26,6 @@ export default function Bio() {
       <div className="absolute -right-40 bottom-0 -z-10 h-96 w-96 rounded-full bg-flare/10 blur-3xl" />
 
       <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-12 md:gap-16">
-        {/* Foto */}
         <div className="md:col-span-5">
           <motion.div style={{ y: yImg }} className="sticky top-28">
             <div className="relative aspect-[4/5] w-full overflow-hidden border border-ink-400/60 bg-ink-700">
@@ -46,15 +45,14 @@ export default function Bio() {
             </div>
             <div className="mt-4 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.22em] text-bone-300">
               <span>FILE//DEMOTONE.PORTRAIT.02</span>
-              <span className="text-acid">●</span>
+              <span className="text-acid">&bull;</span>
             </div>
           </motion.div>
         </div>
 
-        {/* Texto */}
         <div className="md:col-span-7">
           <Reveal>
-            <span className="eyebrow">// 01 — Bio</span>
+            <span className="eyebrow">// 01 &mdash; Bio</span>
           </Reveal>
 
           <Reveal delay={0.05}>
@@ -84,7 +82,7 @@ export default function Bio() {
                   <dt className="font-mono text-[10px] uppercase tracking-[0.22em] text-bone-300">
                     {f.label}
                   </dt>
-                  <dd className="mt-2 font-display text-xl font-bold uppercase text-bone-100">
+                  <dd className="mt-2 font-display text-base font-bold uppercase leading-tight text-bone-100">
                     {f.value}
                   </dd>
                 </div>
@@ -92,7 +90,15 @@ export default function Bio() {
             </dl>
           </Reveal>
 
-          <Reveal delay={0.55}>
+          {bio.extra ? (
+            <Reveal delay={0.55}>
+              <p className="mt-8 max-w-2xl text-base italic leading-relaxed text-bone-300 md:text-lg">
+                {bio.extra}
+              </p>
+            </Reveal>
+          ) : null}
+
+          <Reveal delay={0.65}>
             <div className="mt-12 flex flex-wrap items-center gap-4">
               <a href="#music" className="btn-neon">
                 Ver discograf&iacute;a

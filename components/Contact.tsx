@@ -56,7 +56,7 @@ export default function Contact() {
       <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-12 md:gap-16">
         <div className="md:col-span-5">
           <Reveal>
-            <span className="eyebrow">// 05 — Contacto</span>
+            <span className="eyebrow">// 04 &mdash; Contacto</span>
           </Reveal>
           <Reveal delay={0.05}>
             <h2 className="mt-6 font-display text-5xl font-bold uppercase leading-[0.95] tracking-tight text-bone-100 md:text-7xl">
@@ -65,8 +65,7 @@ export default function Contact() {
           </Reveal>
           <Reveal delay={0.1}>
             <p className="mt-6 max-w-md text-base text-bone-200 md:text-lg">
-              Disponible para sesiones DJ, lives y producciones. Escribe con fecha,
-              ciudad y propuesta — respuesta en menos de 48h.
+              Disponible para sesiones DJ y producciones.
             </p>
           </Reveal>
         </div>
@@ -76,35 +75,18 @@ export default function Contact() {
             <div className="space-y-6 border border-ink-400/60 bg-ink-800 p-6 md:p-8">
               <div>
                 <div className="font-mono text-[10px] uppercase tracking-[0.28em] text-bone-300">
-                  Booking
+                  Booking / Prensa
                 </div>
                 <div className="mt-2 flex items-center">
                   <a
-                    href={`mailto:${contact.bookingEmail}?subject=Booking%20Demotone`}
+                    href={`mailto:${contact.email}?subject=Booking%20Demotone`}
                     className="font-display text-2xl font-bold tracking-tight text-bone-100 transition-colors hover:text-acid md:text-3xl"
                   >
-                    {contact.bookingEmail}
+                    {contact.email}
                   </a>
-                  <CopyEmail email={contact.bookingEmail} />
+                  <CopyEmail email={contact.email} />
                 </div>
               </div>
-
-              {contact.pressEmail && contact.pressEmail !== contact.bookingEmail ? (
-                <div className="border-t border-ink-400/60 pt-6">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.28em] text-bone-300">
-                    Prensa
-                  </div>
-                  <div className="mt-2 flex items-center">
-                    <a
-                      href={`mailto:${contact.pressEmail}?subject=Prensa%20Demotone`}
-                      className="font-display text-xl font-bold tracking-tight text-bone-100 transition-colors hover:text-acid md:text-2xl"
-                    >
-                      {contact.pressEmail}
-                    </a>
-                    <CopyEmail email={contact.pressEmail} />
-                  </div>
-                </div>
-              ) : null}
 
               {socials.length > 0 ? (
                 <div className="border-t border-ink-400/60 pt-6">
@@ -136,8 +118,8 @@ export default function Contact() {
               <div className="border-t border-ink-400/60 pt-6 font-mono text-[10px] uppercase tracking-[0.22em] text-bone-300">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                   <span>{site.domain}</span>
-                  <span className="text-acid">●</span>
-                  <span>Barcelona · ES</span>
+                  <span className="text-acid">&bull;</span>
+                  <span>Barcelona &middot; ES</span>
                 </div>
               </div>
             </div>

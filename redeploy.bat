@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
-title demotone-web :: ajuste tamano video hero
-echo === Deploy: Hero video panel intermedio ===
+title demotone-web :: seguridad + seo
+echo === Deploy: Anti-descarga, seguridad y SEO ===
 echo.
 cd /d "O:\BASEK MUSIC PRODUCCIONS\DEMOTONE\DESIGN\demotone-web"
 
@@ -17,7 +17,7 @@ git add -A
 echo.
 
 echo Creando commit...
-git commit -m "Refactor: Hero video en panel 7/12 (sin upscaling)"
+git commit -m "Security + SEO: anti-descarga imagenes, security headers, sitemap, robots, JSON-LD, OG image"
 echo.
 
 echo Push a GitHub (Vercel auto-redeploy)...
@@ -25,7 +25,10 @@ git push origin main
 
 echo.
 echo =====================================================
-echo  Push hecho. En ~1-2 min se actualiza demotone.es
+echo  Push hecho. En ~1-2 min Vercel desplegara los cambios.
+echo  
+echo  Despues del deploy, abre Google Search Console para
+echo  registrar la web (te dejo instrucciones aparte).
 echo =====================================================
 echo.
 pause

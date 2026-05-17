@@ -71,7 +71,6 @@ export default function Hero() {
       ref={sectionRef}
       className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-ink-900"
     >
-      {/* Capas de fondo (cuadricula + radial + scanlines) */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-industrial-grid opacity-50" />
         <div className="absolute inset-0 bg-grid-radial" />
@@ -80,7 +79,6 @@ export default function Hero() {
 
       <ParticleField className="-z-0" />
 
-      {/* Linea de escaneo vertical */}
       <div className="pointer-events-none absolute inset-y-0 left-1/2 -z-0 hidden w-px -translate-x-1/2 overflow-hidden md:block">
         <div className="absolute inset-x-0 h-32 bg-gradient-to-b from-transparent via-acid/60 to-transparent animate-scan" />
       </div>
@@ -89,7 +87,6 @@ export default function Hero() {
         style={{ opacity }}
         className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-6 pt-28 pb-24 md:grid-cols-12 md:gap-10 md:pt-32"
       >
-        {/* Texto - 5/12 */}
         <div className="md:col-span-5">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -97,7 +94,7 @@ export default function Hero() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="eyebrow"
           >
-            Live &middot; {site.tagline}
+            Hardgroove &middot; Techno &middot; Acid &middot; Tribal
           </motion.div>
 
           <motion.h1
@@ -116,11 +113,7 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="mt-8 max-w-xl text-base text-bone-200 md:text-lg"
           >
-            {site.description}{' '}
-            <span className="text-bone-300">
-              También conocido como{' '}
-              <span className="text-acid">{site.aliasShort}</span> (Hardgroove &middot; Acid).
-            </span>
+            {site.description}
           </motion.p>
 
           <motion.div
@@ -149,7 +142,7 @@ export default function Hero() {
           >
             <div>
               <dt>BPM</dt>
-              <dd className="mt-1 text-2xl text-bone-100">138&mdash;148</dd>
+              <dd className="mt-1 text-2xl text-bone-100">138&mdash;170</dd>
             </div>
             <div>
               <dt>Estilo</dt>
@@ -162,7 +155,6 @@ export default function Hero() {
           </motion.dl>
         </div>
 
-        {/* Video panel - 7/12 (tamaño intermedio, no full-screen) */}
         <motion.div
           style={{ y: yImg }}
           className="md:col-span-7"
@@ -173,7 +165,6 @@ export default function Hero() {
             transition={{ duration: 1, delay: 0.2 }}
             className="relative mx-auto aspect-square w-full max-w-[640px] overflow-hidden border border-ink-400/60 bg-ink-700 md:max-w-none"
           >
-            {/* Marcos esquina acid */}
             <span className="pointer-events-none absolute left-2 top-2 z-10 h-4 w-4 border-l border-t border-acid" />
             <span className="pointer-events-none absolute right-2 top-2 z-10 h-4 w-4 border-r border-t border-acid" />
             <span className="pointer-events-none absolute left-2 bottom-2 z-10 h-4 w-4 border-l border-b border-acid" />
@@ -206,7 +197,6 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
-      {/* Indicador scroll */}
       <a
         href="#bio"
         className="absolute bottom-20 left-1/2 z-10 -translate-x-1/2 flex flex-col items-center gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-bone-300 hover:text-acid"
@@ -215,9 +205,8 @@ export default function Hero() {
         <ArrowDown size={14} className="animate-bounce" />
       </a>
 
-      {/* Marquee inferior */}
       <div className="absolute inset-x-0 bottom-0 z-0">
-        <Marquee items={['TECHNO', 'HARDGROOVE', 'ACID', 'RAW', 'DEMOTONE']} />
+        <Marquee items={['TECHNO', 'HARDGROOVE', 'ACID', 'RAW']} />
       </div>
     </section>
   );

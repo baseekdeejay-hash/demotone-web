@@ -178,3 +178,22 @@ body {
   opacity: 0;
   transform: translateY(24px);
 }
+
+/* === PROTECCIÓN BÁSICA DE IMÁGENES === */
+/* Aplica a TODAS las img y video del sitio: no seleccionable, no arrastrable */
+img,
+picture,
+video {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  pointer-events: auto;
+}
+
+.no-pick {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}

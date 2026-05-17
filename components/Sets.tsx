@@ -181,7 +181,7 @@ export default function Sets() {
         </Reveal>
         <Reveal delay={0.1}>
           <p className="mt-6 max-w-2xl text-base text-bone-200 md:text-lg">
-            Selección de sesiones DJ y sets en directo con cajas de ritmo y sintetizadores.
+            Selección de sesiones DJ y sets en directo.
           </p>
         </Reveal>
 

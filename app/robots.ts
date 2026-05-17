@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/']
       }
     ],
-    sitemap: 'https://demotone.es/sitemap.xml',
-    host: 'https://demotone.es'
+    sitemap: 'https://www.demotone.es/sitemap.xml',
+    host: 'https://www.demotone.es'
   };
 }

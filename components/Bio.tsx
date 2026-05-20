@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { useRef } from 'react';
 import Reveal from './effects/Reveal';
-import SynthRain from './effects/SynthRain';
 import { bio } from '@/data/content';
 
 export default function Bio() {
@@ -27,9 +26,7 @@ export default function Bio() {
       <div className="absolute -right-40 bottom-0 -z-10 h-96 w-96 rounded-full bg-flare/10 blur-3xl" />
 
       <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-12 md:gap-16">
-        <div className="relative md:col-span-5">
-          {/* Pocket rain de TB-303: rellena el espacio bajo la foto en pantallas medias */}
-          <SynthRain variant="pocket" count={3} />
+        <div className="md:col-span-5">
           <motion.div style={{ y: yImg }} className="sticky top-28">
             <div className="relative aspect-[4/5] w-full overflow-hidden border border-ink-400/60 bg-ink-700">
               <span className="absolute left-2 top-2 z-10 h-3 w-3 border-l border-t border-acid" />

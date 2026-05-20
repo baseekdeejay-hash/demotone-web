@@ -2,6 +2,7 @@
 
 import { ExternalLink } from 'lucide-react';
 import Reveal from './effects/Reveal';
+import SynthRain from './effects/SynthRain';
 import { tracks, type Track } from '@/data/content';
 
 function YouTubeEmbed({ id }: { id: string }) {
@@ -100,12 +101,18 @@ export default function Music() {
           </p>
         </Reveal>
 
-        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="relative mt-14 grid grid-cols-1 gap-6 md:grid-cols-2">
           {tracks.map((t, i) => (
             <Reveal key={`${t.id}-${i}`} delay={0.05 * i}>
               <TrackCard track={t} />
             </Reveal>
           ))}
+          {/* Lluvia de TB-303 en la columna vacia cuando hay numero impar de tracks */}
+          {tracks.length % 2 === 1 ? (
+            <div className="relative hidden min-h-[280px] md:block">
+              <SynthRain variant="pocket" count={3} />
+            </div>
+          ) : null}
         </div>
 
         {tracks.length === 0 ? (

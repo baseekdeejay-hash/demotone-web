@@ -5,8 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
-        disallow: ['/api/']
+        allow: '/'
       }
     ],
     sitemap: 'https://www.demotone.es/sitemap.xml',

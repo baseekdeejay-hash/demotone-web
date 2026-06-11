@@ -21,6 +21,21 @@ const nextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' }
     ]
   },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.demotone.es',
+          },
+        ],
+        destination: 'https://demotone.es/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

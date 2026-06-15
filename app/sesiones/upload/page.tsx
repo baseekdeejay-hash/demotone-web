@@ -1,3 +1,5 @@
+'use client';
+
 import { Info } from 'lucide-react';
 
 export default function UploadPage() {

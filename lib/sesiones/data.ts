@@ -29,7 +29,7 @@ export const SESSIONS: Session[] = [
     genres: ['House', 'Tech House', 'Vinyl'],
     cover: '/images/hero-poster.jpg',
     audioSrc:
-      'http://143.47.48.85/music/sesiones/Baseek%20-%20House%20on%20Wax%20vol.3.mp3',
+      'http://143.47.48.85/publico/musica/Baseek%20-%20House%20on%20Wax%20vol.3.mp3',
     uploadedAt: '2026-05-20T00:00:00Z'
   }
 ];

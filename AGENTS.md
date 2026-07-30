@@ -49,15 +49,15 @@ git log --oneline -1        # el commit más reciente del proyecto
 
 ### ⚠️ Los ficheros `.bat` de la raíz están OBSOLETOS
 
-`redeploy.bat`, `push-sesiones.bat`, `fix-and-push.bat`, `setup.bat`, `setup.ps1`,
-`fix-events.bat`, `fix-sitemap.bat`, `push-cleanup.bat`, `push-marquee.bat` todos hacen:
+`redeploy.bat`, `fix-and-push.bat`, `setup.bat`, `setup.ps1`, `fix-events.bat`,
+`fix-sitemap.bat`, `push-cleanup.bat`, `push-marquee.bat` todos hacen:
 
 ```
 cd /d "O:\BASEK MUSIC PRODUCCIONS\DEMOTONE\DESIGN\demotone-web"
 ```
 
 Esa unidad `O:` ya no es la ubicación del proyecto. Además llevan el mensaje de commit
-escrito a fuego. **No los uses.** Haz los comandos git a mano (ver §7).
+escrito a fuego. **No los uses.** Haz los comandos git a mano (ver §6).
 
 ### Variables de entorno
 
@@ -67,106 +67,60 @@ se configura en Vercel → Project Settings → Environment Variables, y en loca
 
 ---
 
-## 3. Estado del repo en el momento de escribir esto
+## 3. Estructura: la web es UNA sola página
 
-Último commit: `848ffd5 fix(sesiones): add use client to upload page to fix build error`
-
-**Hay cambios locales SIN subir**, por lo que la web en vivo no los muestra todavía:
-
-```
- M app/sesiones/page.tsx      → añade <SoundcloudPlayer> a la biblioteca
- M lib/sesiones/data.ts       → añade 3 sesiones (2 con URLs placeholder, ver §8)
- M package.json / package-lock.json
-?? components/sesiones/SoundcloudPlayer.tsx   (fichero nuevo sin trackear)
-```
-
-Antes de empezar cualquier tarea nueva: ejecuta `git status` y decide con el usuario
-si esos cambios se suben o se descartan. **No los subas por sorpresa dentro de otro
-commit.**
-
----
-
-## 4. Mapa de ficheros
+Todo el contenido vive en la home (`/`), como secciones que se recorren con scroll y
+anclas (`#hero`, `#bio`, `#music`, `#sets`, `#contact`). **No hay más rutas de
+contenido.** Las únicas rutas adicionales son técnicas: `robots.txt`, `sitemap.xml` y
+el endpoint `app/api/chat/route.ts`.
 
 ```
 demotone-next/
 ├─ app/
 │  ├─ layout.tsx          # <html>, fuentes Google, TODO el SEO/metadata, JSON-LD
 │  ├─ page.tsx            # Home: ensambla las secciones en orden
-│  ├─ globals.css         # variables CSS + clases utilitarias propias (§6)
+│  ├─ globals.css         # variables CSS + clases utilitarias propias (§5)
 │  ├─ robots.ts           # robots.txt generado
 │  ├─ sitemap.ts          # sitemap.xml generado
-│  ├─ api/
-│  │  ├─ audio/route.ts   # proxy HTTPS→HTTP para los MP3 (whitelist de hosts)
-│  │  └─ chat/route.ts    # endpoint Gemini (stub)
-│  └─ sesiones/           # ÁREA APARTE, ver §5.B
-│     ├─ layout.tsx       # nav propia + MiniPlayer persistente
-│     ├─ page.tsx         # índice de la biblioteca de audio
-│     ├─ [slug]/page.tsx  # ficha de una sesión (static params)
-│     └─ upload/page.tsx  # formulario maqueta, SIN backend
+│  └─ api/chat/route.ts   # endpoint Gemini (stub, requiere GEMINI_API_KEY)
 ├─ components/
 │  ├─ Navbar.tsx  Hero.tsx  Bio.tsx  Music.tsx  Sets.tsx  Contact.tsx  Footer.tsx
 │  ├─ SeoJsonLd.tsx
-│  ├─ effects/    # CustomCursor, GlitchText, Marquee, ParticleField,
-│  │              # PrivacyGuard (anti-descarga de imágenes), Reveal (scroll)
-│  └─ sesiones/   # BigPlayer, MiniPlayer, SesionesNav, SoundcloudPlayer,
-│                 # TrackCard, Waveform
+│  └─ effects/    # CustomCursor, GlitchText, Marquee, ParticleField,
+│                 # PrivacyGuard (anti-descarga de imágenes), Reveal (scroll)
 ├─ data/
-│  └─ content.ts  # ★ TEXTOS, ENLACES, TRACKS Y VÍDEOS DE LA HOME
-├─ lib/sesiones/
-│  ├─ data.ts     # ★ lista de sesiones de audio del área /sesiones
-│  └─ playerStore.ts  # store zustand del reproductor
+│  └─ content.ts  # ★ TEXTOS, ENLACES, TRACKS Y VÍDEOS — casi todo se edita aquí
 ├─ public/
 │  ├─ favicon.svg  og.jpg
 │  ├─ images/     # hero.jpg, bio.jpg, wordmark.jpg, logo-mono.jpg, singular.jpg,
 │  │              # hero-poster.jpg, *-placeholder.svg
 │  └─ videos/hero.mp4
-├─ middleware.ts        # ★ Content-Security-Policy con nonce (§6.4)
+├─ middleware.ts        # ★ Content-Security-Policy con nonce (§5.4)
 ├─ next.config.mjs      # security headers, redirect www→apex, remotePatterns
 └─ tailwind.config.ts   # ★ paleta y animaciones
 ```
 
 Alias de imports: `@/` = raíz del proyecto (`tsconfig.json`). Ej. `@/data/content`.
 
----
-
-## 5. Las DOS zonas de "sesiones" — no las confundas
-
-Esto es el error más fácil de cometer. Hay dos sitios distintos con vídeos/sets:
-
-### A) Sección "Sets & Lives" de la home ← **esto es lo que ve el visitante**
-
-- **URL:** `https://demotone.es/#sets`
-- **Componente:** `components/Sets.tsx`
-- **Datos:** array `mixes` en `data/content.ts`
-- **Qué muestra:** rejilla de 2 columnas con vídeos de **YouTube** (y opcionalmente
-  SoundCloud). Cada tarjeta enseña la **miniatura de YouTube** y al hacer clic
-  sustituye la miniatura por el iframe embebido.
-- Se divide en dos sub-bloques automáticamente por el campo `category`:
-  - `category: 'session'` → subtítulo **"Sesiones"** (icono disco)
-  - `category: 'live'` → subtítulo **"Lives"** (icono radio)
-
-**Cuando el usuario dice "añade este vídeo nuevo a las sesiones", el 99% de las veces
-se refiere AQUÍ.** Ve directo a §5.1.
-
-### B) Área `/sesiones` — biblioteca de audio (proyecto paralelo, a medias)
-
-- **URL:** `https://demotone.es/sesiones`
-- **Datos:** array `SESSIONS` en `lib/sesiones/data.ts`
-- **Qué es:** reproductor tipo SoundCloud con waveform (wavesurfer.js) para **MP3
-  alojados en el servidor propio** `143.47.48.85`. Paleta naranja distinta.
-- **No está enlazada desde la navegación principal.** Tiene datos placeholder y el
-  upload no tiene backend. Es una fase inacabada.
-
-Solo toca esta zona si el usuario habla explícitamente de `/sesiones`, de MP3, del
-servidor `143.47.48.85` o de la waveform.
+Orden de las secciones en `app/page.tsx`: Hero → Bio → Music → Sets → Contact → Footer.
 
 ---
 
-### 5.1 ★ RECETA: añadir un vídeo nuevo de YouTube a la home
+## 4. Cómo añadir contenido
 
-Es un cambio de **una sola línea de datos**. La miniatura, el botón de play, el
-iframe, el número de orden y el enlace externo son automáticos.
+### 4.1 ★ RECETA: añadir un vídeo nuevo de YouTube
+
+La sección **"Sets & Lives"** (`https://demotone.es/#sets`) la pinta
+`components/Sets.tsx` a partir del array `mixes` de `data/content.ts`. Muestra una
+rejilla de tarjetas con la **miniatura de YouTube**; al hacer clic, la miniatura se
+sustituye por el iframe embebido. Se parte en dos bloques automáticamente según el
+campo `category`:
+
+- `category: 'session'` → bloque **"Sesiones"** (icono disco)
+- `category: 'live'` → bloque **"Lives"** (icono radio)
+
+Añadir un vídeo es un cambio de **una sola línea de datos**. La miniatura, el botón de
+play, el iframe, el número de orden y el enlace externo son automáticos.
 
 **Paso 1 — Saca el ID del vídeo del enlace.** El ID son 11 caracteres:
 
@@ -196,7 +150,7 @@ export type Mix = {
 };
 ```
 
-Ejemplo real, añadiendo la Session 03 al principio de las sesiones:
+Ejemplo real, añadiendo una Session 03 al principio de las sesiones:
 
 ```ts
 export const mixes: Mix[] = [
@@ -227,9 +181,9 @@ export const mixes: Mix[] = [
 `category`. Vídeo nuevo arriba = primero. El contador "NN pistas" del encabezado se
 recalcula solo.
 
-**Verifica y publica:** `npm run build` y luego el flujo de §7.
+**Verifica y publica:** `npm run build` y luego el flujo de §6.
 
-### 5.2 Añadir un set de SoundCloud a la misma sección
+### 4.2 Añadir un set de SoundCloud a la misma sección
 
 Igual que arriba, pero `type: 'soundcloud'` y en `id` va la **URL completa** del track:
 
@@ -245,7 +199,7 @@ Igual que arriba, pero `type: 'soundcloud'` y en `id` va la **URL completa** del
 Ojo: las tarjetas SoundCloud **no tienen miniatura** (`thumb` es `null`), muestran un
 degradado con el botón de play. Es el comportamiento previsto, no un bug.
 
-### 5.3 Añadir un track/release a la sección "Música"
+### 4.3 Añadir un track/release a la sección "Música"
 
 Array `tracks` en `data/content.ts`. Tipo `Track`:
 `{ title, type: 'youtube'|'soundcloud', id, label?, year? }`.
@@ -253,7 +207,7 @@ Array `tracks` en `data/content.ts`. Tipo `Track`:
 Diferencia con `mixes`: en Música el iframe se carga **directo, sin miniatura ni clic
 previo**. Un YouTube aquí se embebe desde el primer render.
 
-### 5.4 Cambiar textos, bio, redes o email
+### 4.4 Cambiar textos, bio, redes o email
 
 Todo vive en `data/content.ts`: objetos `site`, `nav`, `bio`, `contact`. No hay textos
 duplicados en los componentes salvo los títulos de sección.
@@ -262,26 +216,11 @@ Si cambias el título o la descripción del sitio, actualiza **también** el blo
 `metadata` de `app/layout.tsx` (título OG, descripción, keywords) y
 `components/SeoJsonLd.tsx`, que no leen de `content.ts`.
 
-### 5.5 Añadir una sesión de audio a `/sesiones`
-
-Solo si el usuario lo pide explícitamente. Tres pasos obligatorios:
-
-1. Sube el MP3 al servidor (ej. `http://143.47.48.85/publico/musica/NOMBRE.mp3`).
-2. Añade el objeto a `SESSIONS` en `lib/sesiones/data.ts` (tipo `Session`: `slug`,
-   `title`, `artist`, `description?`, `genres[]`, `cover`, `audioSrc`, `uploadedAt`
-   ISO, `durationHint?`).
-3. **Comprueba que el host del audio está en `ALLOWED_HOSTS`** de
-   `app/api/audio/route.ts`. Si no está, el proxy devuelve **403** y no suena nada.
-   Ahora mismo solo está `143.47.48.85`.
-
-El `slug` debe ser único y en kebab-case: alimenta la ruta `/sesiones/<slug>` vía
-`generateStaticParams`.
-
 ---
 
-## 6. Sistema de diseño — respétalo o la web deja de parecer la misma
+## 5. Sistema de diseño — respétalo o la web deja de parecer la misma
 
-### 6.1 Paleta (`tailwind.config.ts`)
+### 5.1 Paleta (`tailwind.config.ts`)
 
 | Token | Hex | Uso |
 |---|---|---|
@@ -295,12 +234,10 @@ El `slug` debe ser único y en kebab-case: alimenta la ruta `/sesiones/<slug>` v
 | `acid` | `#e6ff04` | **acento principal** (amarillo neón) |
 | `flare` | `#ff5b1f` | acento secundario (glitch) |
 
-**Excepción importante:** el área `/sesiones` no usa esta paleta, usa hex hardcodeados
-naranja SoundCloud (`#ff5500`, `#1a1a1a`, `#0a0a0b`, grises `zinc-*`). Es deliberado.
-Si editas ahí, sigue el naranja; si editas la home, sigue el `acid`. **Nunca mezcles
-los dos.**
+Usa **siempre** estos tokens de Tailwind. No metas hex sueltos en el JSX ni introduzcas
+colores nuevos: el amarillo `acid` es la identidad de la marca.
 
-### 6.2 Tipografía
+### 5.2 Tipografía
 
 Cargada con `next/font/google` en `app/layout.tsx` y expuesta como variables CSS:
 
@@ -312,13 +249,13 @@ Cargada con `next/font/google` en `app/layout.tsx` y expuesta como variables CSS
 
 No añadas fuentes nuevas.
 
-### 6.3 Clases utilitarias propias (`app/globals.css`)
+### 5.3 Clases utilitarias propias (`app/globals.css`)
 
 `.eyebrow` (etiqueta de sección con raya), `.btn-neon` (botón contorno amarillo con
 relleno al hover), `.bg-industrial-grid`, `.bg-scanlines`, `.glitch` (necesita
 `data-text`), `.marquee-track`, `.reveal-init`, `.no-pick`.
 
-**Patrón de sección de la home** — cópialo si creas una sección nueva:
+**Patrón de sección** — cópialo si creas una sección nueva:
 
 ```tsx
 <section id="xxx" className="relative overflow-hidden border-t border-ink-400/40 bg-ink-900 py-24 md:py-32">
@@ -342,9 +279,10 @@ aparecen al hover (`opacity-0 ... group-hover:opacity-100`). Está en `Sets.tsx`
 
 **Animación de entrada:** envuelve en `<Reveal delay={0.05 * i}>` los elementos de una
 lista. Las secciones van numeradas en el eyebrow (`// 01` Bio, `// 02` Discografía,
-`// 03` Sets & Lives…): si insertas una sección, renumera las siguientes.
+`// 03` Sets & Lives…): si insertas una sección, renumera las siguientes y añade la
+entrada correspondiente al array `nav` de `data/content.ts`.
 
-### 6.4 ★ Content-Security-Policy — la trampa nº1
+### 5.4 ★ Content-Security-Policy — la trampa nº1
 
 `middleware.ts` inyecta un CSP estricto en todas las rutas menos `/api`. Si añades un
 embed o una imagen de un dominio nuevo y **no** lo declaras ahí, el iframe sale en
@@ -361,27 +299,26 @@ Y si usas `next/image` con un host remoto, además hay que añadirlo a
 `<img>` normal a propósito (con `eslint-disable-next-line @next/next/no-img-element`)
 para las miniaturas de YouTube, así que ahí no aplica.
 
-### 6.5 Otras restricciones que rompen el deploy
+### 5.5 Otras restricciones que rompen el deploy
 
 - `typescript: { ignoreBuildErrors: false }` → **cualquier error de tipos tumba el
   build de Vercel**. Corre `npm run build` en local antes de subir.
 - `eslint: { ignoreDuringBuilds: true }` → los avisos de lint no bloquean.
-- Componentes con hooks/eventos necesitan `'use client'` en la primera línea (el último
-  commit del repo fue exactamente para arreglar ese olvido).
+- Componentes con hooks o manejadores de eventos necesitan `'use client'` en la primera
+  línea. Es un olvido que ya ha roto un build en este repo.
 - `X-Frame-Options: DENY` y `frame-ancestors 'none'`: la web no se puede embeber en
   otro sitio. No es un bug.
 - `PrivacyGuard` + reglas CSS en `globals.css` bloquean arrastrar/seleccionar imágenes.
-  Si añades imágenes, márcalas con `data-protect="true"` como hace `TrackCard.tsx`.
 
 ---
 
-## 7. Flujo de trabajo para cada cambio
+## 6. Flujo de trabajo para cada cambio
 
 ```bash
 cd "C:\Users\BASEEK\Documents\IA - ANTIGRAVITY\demotone-next"
 ```
 
-1. `git status` — revisa que no arrastras cambios ajenos (§3).
+1. `git status` — comprueba que partes de un árbol limpio.
 2. `npm install` solo si falta `node_modules`.
 3. Edita los ficheros de datos (casi siempre `data/content.ts`).
 4. `npm run build` — **obligatorio**, tiene que acabar sin errores.
@@ -395,7 +332,7 @@ git push origin main
 ```
 
 Estilo de mensajes de commit del repo: `tipo(ambito): descripcion` en minúsculas
-(`feat`, `fix`, `chore`; ámbitos vistos: `sesiones`, `seo`, `security`, `sets`).
+(`feat`, `fix`, `chore`, `docs`; ámbitos vistos: `sets`, `seo`, `security`).
 Evita acentos y eñes en el mensaje: el historial ya tiene problemas de codificación.
 
 7. Espera 1-2 min y verifica en `https://demotone.es`. Si el deploy falla, el log está
@@ -403,36 +340,34 @@ Evita acentos y eñes en el mensaje: el historial ya tiene problemas de codifica
 
 ---
 
-## 8. Problemas conocidos (no son "tuyos", ya venían así)
+## 7. Problemas conocidos (no son "tuyos", ya venían así)
 
 1. **Canónica contradictoria.** `app/sitemap.ts` declara `https://www.demotone.es`
    como canónica, pero `next.config.mjs` redirige `www` → apex y `app/layout.tsx`
    pone `https://demotone.es` en `alternates.canonical`. El sitemap es el que está
    mal; arreglarlo = usar el apex.
-2. **Datos placeholder en `lib/sesiones/data.ts`** (cambios sin commitear): dos
-   entradas apuntan a `http://example.com/audio/...`, que el proxy rechaza con 403
-   porque el host no está en la whitelist. Y `hardgroove-techno-session-03` tiene una
-   **URL de YouTube en el campo `audioSrc`**, que el reproductor de waveform no sabe
-   reproducir: ese vídeo debería estar en `mixes` de `data/content.ts`, no aquí.
-3. **Duplicidad de datos.** Las mismas sesiones están descritas en `mixes`
-   (`data/content.ts`) y en `SESSIONS` (`lib/sesiones/data.ts`) con campos distintos.
-   No hay una única fuente de verdad; al añadir contenido pregunta en cuál de las dos
-   zonas debe aparecer (§5).
-4. **`README.md` desactualizado.** Su árbol de ficheros menciona `Events.tsx` (borrado
+2. **`README.md` desactualizado.** Su árbol de ficheros menciona `Events.tsx` (borrado
    en el commit `e48bff1`) y componentes de efectos con nombres antiguos
    (`ParticleBackground`, `ScrollReveal`). Fíate de este AGENTS.md, no del README.
-5. **`app/sesiones/upload/page.tsx` no funciona**: es una maqueta, el submit solo
-   lanza un `alert()`. No hay almacenamiento ni base de datos.
-6. **`app/api/chat/route.ts`** depende de `GEMINI_API_KEY`, que puede no estar
-   configurada en Vercel.
+3. **`app/api/chat/route.ts`** depende de `GEMINI_API_KEY`, que puede no estar
+   configurada en Vercel. No está enganchado a ninguna interfaz todavía.
+
+### Nota histórica: el área `/sesiones` fue eliminada
+
+Hubo una sección `/sesiones` (biblioteca de MP3 con reproductor de waveform,
+`wavesurfer.js`, `zustand`, un proxy de audio en `app/api/audio` y una paleta naranja
+propia). Estaba inacabada y se **borró por completo el 2026-07-30**. Si ves referencias
+a ella en commits antiguos, en el `README.md` o en los `.bat`, ignóralas: **no la
+recrees salvo que el usuario lo pida explícitamente.** El código sigue recuperable en
+el historial de git (anterior al commit de borrado).
 
 ---
 
-## 9. Chuleta: "quiero X" → "toca Y"
+## 8. Chuleta: "quiero X" → "toca Y"
 
 | El usuario pide | Fichero a editar |
 |---|---|
-| Añadir vídeo de YouTube a Sesiones o Lives | `data/content.ts` → `mixes` (§5.1) |
+| Añadir vídeo de YouTube a Sesiones o Lives | `data/content.ts` → `mixes` (§4.1) |
 | Añadir track/remix a Música | `data/content.ts` → `tracks` |
 | Cambiar bio, tagline, descripción | `data/content.ts` → `bio`, `site` |
 | Cambiar email o redes sociales | `data/content.ts` → `contact` |
@@ -440,6 +375,5 @@ Evita acentos y eñes en el mensaje: el historial ya tiene problemas de codifica
 | Cambiar título/SEO/OG de la web | `app/layout.tsx` + `components/SeoJsonLd.tsx` |
 | Cambiar la foto del hero o de la bio | `public/images/` + rutas en `data/content.ts` |
 | Cambiar colores o animaciones | `tailwind.config.ts` (+ `app/globals.css`) |
-| Añadir sesión de audio MP3 | `lib/sesiones/data.ts` + whitelist en `app/api/audio/route.ts` (§5.5) |
-| Permitir embeds de un servicio nuevo | `middleware.ts` (`frame-src`/`img-src`) (§6.4) |
-| Reordenar secciones de la home | `app/page.tsx` (y renumerar los `.eyebrow`) |
+| Permitir embeds de un servicio nuevo | `middleware.ts` (`frame-src`/`img-src`) (§5.4) |
+| Reordenar secciones | `app/page.tsx` (y renumerar los `.eyebrow`) |

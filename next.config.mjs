@@ -21,21 +21,10 @@ const nextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' }
     ]
   },
-  async redirects() {
-    return [
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'host',
-            value: 'www.demotone.es',
-          },
-        ],
-        destination: 'https://demotone.es/:path*',
-        permanent: true,
-      },
-    ];
-  },
+  // OJO: no anadir aqui una redireccion www -> apex. Vercel ya redirige
+  // demotone.es -> www.demotone.es a nivel de dominio, y las dos juntas
+  // provocan un bucle infinito que tumba la web (paso el 2026-07-30).
+  // El dominio canonico es https://www.demotone.es
   async headers() {
     return [
       {

@@ -40,12 +40,32 @@ git log --oneline -1        # el commit más reciente del proyecto
 
 - **Framework:** Next.js 14.2.5, App Router, TypeScript, Tailwind CSS 3.4, Framer Motion.
 - **Repo GitHub:** `https://github.com/baseekdeejay-hash/demotone-web`, rama **`main`**.
-- **Proyecto Vercel:** `demotone-next`
-  - `projectId`: `prj_FbMmLysdX2bY0VbQe0Rjdq3xPI2F`
-  - `orgId`: `team_dqi7DzCGaX9QlGFhUCfn2AWw`
-- **Dominio:** `demotone.es` (`www.demotone.es` redirige 301 al apex, ver `next.config.mjs`).
-- **Pipeline:** `git push origin main` → Vercel construye y despliega automáticamente
-  (~1-2 min). **No hace falta ejecutar `vercel` a mano.**
+  Sirve solo de copia de seguridad e historial.
+- **Dominio canónico:** `https://www.demotone.es`. El apex `demotone.es` redirige a
+  `www` **a nivel de dominio en Vercel** (307).
+
+### ⚠️ GitHub NO está conectado a Vercel: `git push` NO despliega
+
+Ninguno de los dos proyectos de Vercel tiene integración git. Hacer push sube el código
+a GitHub y **no pasa nada más**. Para publicar hay que desplegar a mano con el CLI.
+
+Hay **dos proyectos** en el equipo `demotone-s-projects` (team `team_dqi7DzCGaX9QlGFhUCfn2AWw`):
+
+| Proyecto | projectId | Dominio | Qué es |
+|---|---|---|---|
+| **`demotone-web`** | `prj_DAzvu1jsV9d9cUL2JvRyvaE3Q0wa` | **`www.demotone.es`** ✅ | **El bueno. Despliega aquí.** |
+| `demotone-next` | `prj_FbMmLysdX2bY0VbQe0Rjdq3xPI2F` | solo `demotone-next.vercel.app` | Duplicado sin dominio. Lo que despliegues aquí NO se ve en la web. |
+
+La carpeta local está enlazada a `demotone-web` (fichero `.vercel/repo.json`). Comando
+de despliegue:
+
+```bash
+npx vercel deploy --prod --yes --scope demotone-s-projects
+```
+
+Tarda ~1-2 min y **ya queda como producción** (no hace falta `vercel promote`; si lo
+lanzas te dará un 409 diciendo que ya es la producción actual). El flag `--scope` es
+obligatorio: sin él el CLI falla con *"Deployment belongs to a different team"*.
 
 ### ⚠️ Los ficheros `.bat` de la raíz están OBSOLETOS
 
@@ -323,7 +343,13 @@ cd "C:\Users\BASEEK\Documents\IA - ANTIGRAVITY\demotone-next"
 3. Edita los ficheros de datos (casi siempre `data/content.ts`).
 4. `npm run build` — **obligatorio**, tiene que acabar sin errores.
 5. Opcional: `npm run dev` y mira `http://localhost:3000/#sets`.
-6. Commit y push:
+6. **Publica** (esto es lo que hace que se vea en la web):
+
+```bash
+npx vercel deploy --prod --yes --scope demotone-s-projects
+```
+
+7. Guarda el código en GitHub (backup, no despliega nada):
 
 ```bash
 git add -A
@@ -335,18 +361,39 @@ Estilo de mensajes de commit del repo: `tipo(ambito): descripcion` en minúscula
 (`feat`, `fix`, `chore`, `docs`; ámbitos vistos: `sets`, `seo`, `security`).
 Evita acentos y eñes en el mensaje: el historial ya tiene problemas de codificación.
 
-7. Espera 1-2 min y verifica en `https://demotone.es`. Si el deploy falla, el log está
-   en el dashboard de Vercel del proyecto `demotone-next`.
+8. Verifica en `https://www.demotone.es`. Comprueba que devuelve **200** y no una
+   cadena de redirecciones (ver §7.1). Si el deploy falla, el log está en el dashboard
+   de Vercel, proyecto **`demotone-web`**.
 
 ---
 
 ## 7. Problemas conocidos (no son "tuyos", ya venían así)
 
-1. **Canónica contradictoria.** `app/sitemap.ts` declara `https://www.demotone.es`
-   como canónica, pero `next.config.mjs` redirige `www` → apex y `app/layout.tsx`
-   pone `https://demotone.es` en `alternates.canonical`. El sitemap es el que está
-   mal; arreglarlo = usar el apex.
-2. **`README.md` desactualizado.** Su árbol de ficheros menciona `Events.tsx` (borrado
+### 7.1 ☠️ NUNCA añadas una redirección `www` → apex en `next.config.mjs`
+
+Vercel ya redirige `demotone.es` → `www.demotone.es` a nivel de dominio. Si además la
+app redirige `www` → apex, se crea un **bucle infinito y la web deja de cargar entera**
+(todo devuelve 307/308 sin parar).
+
+Esto pasó de verdad: el commit `020574a chore(seo): add www to non-www redirect` metió
+esa redirección, y como consecuencia **la web se quedó congelada 71 días** — cualquier
+despliegue nuevo la tumbaba, así que nadie promovía nada y el dominio siguió sirviendo
+un build viejo. Se detectó y arregló el 2026-07-30.
+
+El dominio canónico es **`https://www.demotone.es`**, y así está puesto en
+`app/layout.tsx` (`SITE_URL`) y en `app/sitemap.ts`. Si tocas uno, toca los dos.
+
+Después de cada despliegue, comprueba:
+
+```bash
+curl -s -o /dev/null -w "%{http_code} %{num_redirects}\n" -L https://demotone.es/
+```
+
+Tiene que devolver `200 1`. Si ves más de una redirección, has roto el bucle otra vez.
+
+### 7.2 Otros
+
+1. **`README.md` desactualizado.** Su árbol de ficheros menciona `Events.tsx` (borrado
    en el commit `e48bff1`) y componentes de efectos con nombres antiguos
    (`ParticleBackground`, `ScrollReveal`). Fíate de este AGENTS.md, no del README.
 3. **`app/api/chat/route.ts`** depende de `GEMINI_API_KEY`, que puede no estar

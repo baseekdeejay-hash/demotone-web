@@ -7,7 +7,8 @@ const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 const display = Space_Grotesk({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
 
-const SITE_URL = 'https://demotone.es';
+// Canonico = www: Vercel redirige el apex a www a nivel de dominio.
+const SITE_URL = 'https://www.demotone.es';
 const OG_IMAGE = `${SITE_URL}/og.jpg`;
 
 export const metadata: Metadata = {

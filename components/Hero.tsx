@@ -58,9 +58,7 @@ export default function Hero() {
     if (!v || isMobile || reduce) return;
     const dur = v.duration;
     if (!dur || isNaN(dur)) return;
-    // Acelera el video: completa los 5s a ~50% del scroll del Hero
-    // (cuando aun se ve el boton "Escuchar sets", antes del marquee inferior).
-    const p = Math.max(0, Math.min(1, progress * 2));
+    const p = Math.max(0, Math.min(1, progress));
     const targetTime = p * dur;
     if (Math.abs(v.currentTime - targetTime) > 0.02) {
       v.currentTime = targetTime;

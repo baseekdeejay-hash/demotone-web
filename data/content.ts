@@ -82,16 +82,9 @@ export type Mix = {
 
 export const mixes: Mix[] = [
   {
-    title: 'Hardgroove Techno Session 01',
+    title: 'Hardgroove Techno Session 03',
     type: 'youtube',
-    id: 'a40G1Zvawvk',
-    category: 'session',
-    venue: 'Teseracto Local'
-  },
-  {
-    title: 'Hardgroove Techno Session 02',
-    type: 'youtube',
-    id: '4cGCF2mXhUw',
+    id: 'vtqU1bvpp24',
     category: 'session',
     venue: 'Teseracto Local'
   },
@@ -102,6 +95,20 @@ export const mixes: Mix[] = [
     category: 'session',
     collaborator: 'DJ Ukra',
     date: '02 / 2026'
+  },
+  {
+    title: 'Hardgroove Techno Session 02',
+    type: 'youtube',
+    id: '4cGCF2mXhUw',
+    category: 'session',
+    venue: 'Teseracto Local'
+  },
+  {
+    title: 'Hardgroove Techno Session 01',
+    type: 'youtube',
+    id: 'a40G1Zvawvk',
+    category: 'session',
+    venue: 'Teseracto Local'
   },
   {
     title: 'Micro Set — Live',

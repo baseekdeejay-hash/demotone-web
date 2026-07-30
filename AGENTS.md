@@ -391,7 +391,26 @@ curl -s -o /dev/null -w "%{http_code} %{num_redirects}\n" -L https://demotone.es
 
 Tiene que devolver `200 1`. Si ves más de una redirección, has roto el bucle otra vez.
 
-### 7.2 Otros
+### 7.3 ☠️ El CSP puede dejar la web "muerta" sin dar ningún error
+
+`middleware.ts` llevaba `script-src 'self' 'nonce-XXX' 'strict-dynamic' ...`, pero Next
+no estaba poniendo el nonce en sus `<script>`. Con `'strict-dynamic'` el navegador
+**ignora `'self'` y `'unsafe-inline'`**, así que bloqueaba todos los scripts: React no
+hidrataba y la web se veía sin vídeo de portada, sin animaciones y con los botones de
+play de los vídeos muertos. El build pasaba y no había error visible en consola.
+
+**No uses `'strict-dynamic'` aquí** salvo que verifiques que Next aplica el nonce.
+
+Después de cualquier cambio en el CSP, comprueba la hidratación en el navegador:
+
+```js
+!!Object.keys(document.querySelector('main')).find(k => k.startsWith('__react'))
+// tiene que devolver true
+```
+
+Si da `false`, los scripts están bloqueados y la web está rota aunque el texto se vea.
+
+### 7.4 Otros
 
 1. **`README.md` desactualizado.** Su árbol de ficheros menciona `Events.tsx` (borrado
    en el commit `e48bff1`) y componentes de efectos con nombres antiguos

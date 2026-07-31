@@ -6,12 +6,11 @@ import { ArrowDown, Play } from 'lucide-react';
 import ParticleField from './effects/ParticleField';
 import GlitchText from './effects/GlitchText';
 import Marquee from './effects/Marquee';
-import useScrollScrub from './effects/useScrollScrub';
+import ScrubVideo from './effects/ScrubVideo';
 import { site } from '@/data/content';
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const reduce = useReducedMotion();
 
   const { scrollYProgress } = useScroll({
@@ -20,10 +19,6 @@ export default function Hero() {
   });
   const yImg = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 80]);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0.2]);
-
-  // Scrubbing nativo: el de framer-motion no movia el video de forma fiable.
-  // speed 2 = completa los 5s a ~50% del scroll del Hero.
-  useScrollScrub(sectionRef, videoRef, { mode: 'exit', speed: 2 });
 
   return (
     <section
@@ -130,17 +125,14 @@ export default function Hero() {
             <span className="pointer-events-none absolute left-2 bottom-2 z-10 h-4 w-4 border-l border-b border-acid" />
             <span className="pointer-events-none absolute right-2 bottom-2 z-10 h-4 w-4 border-r border-b border-acid" />
 
-            <video
-              ref={videoRef}
-              className="absolute inset-0 h-full w-full object-cover"
+            <ScrubVideo
               src="/videos/hero.mp4"
               poster="/images/hero-poster.jpg"
-              muted
-              playsInline
-              preload="auto"
-              autoPlay={false}
-              loop={false}
-              aria-hidden
+              sectionRef={sectionRef}
+              mode="exit"
+              speed={2}
+              wrapperClassName="absolute inset-0"
+              canvasClassName="h-full w-full object-cover"
             />
 
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-900/40 via-transparent to-transparent" />

@@ -231,9 +231,16 @@ previo**. Un YouTube aquí se embebe desde el primer render.
 
 Hay dos vídeos que **no se reproducen solos**: avanzan y retroceden con el scroll.
 El Hero (`components/Hero.tsx`, `/videos/hero.mp4`) y la Bio (`components/Bio.tsx`,
-`/videos/bio.mp4`). El mecanismo es idéntico en los dos: `useScroll` sobre la sección +
-`useMotionValueEvent` que escribe `video.currentTime`. En móvil y con
-`prefers-reduced-motion` se desactiva y se ve el `poster`.
+`/videos/bio.mp4`). Los dos usan el componente `components/effects/ScrubVideo.tsx`, que
+ata el scroll al vídeo.
+
+**Importante — se dibuja en un `<canvas>`, no en un `<video>` a secas.** Mover
+`video.currentTime` en un `<video>` pausado cambia el tiempo pero el navegador no
+siempre repinta el fotograma visible (Chrome sobre todo): el vídeo "avanza" por dentro
+pero se ve congelado y parece que no se mueve. `ScrubVideo` mantiene el `<video>` oculto
+como fuente y pinta cada fotograma en un canvas, que siempre repinta. **No lo cambies de
+vuelta a un `<video>` visible.** Y no se desactiva con `prefers-reduced-motion`: el
+movimiento lo genera el usuario al hacer scroll, no se reproduce solo.
 
 **Para cambiar uno de esos vídeos hay que reencodearlo con keyframe en CADA frame.**
 Un MP4 normal trae un keyframe cada 1-2 segundos y el scrubbing va a tirones, porque el

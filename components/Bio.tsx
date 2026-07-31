@@ -2,14 +2,11 @@
 
 import { useRef } from 'react';
 import Reveal from './effects/Reveal';
-import useScrollScrub from './effects/useScrollScrub';
+import ScrubVideo from './effects/ScrubVideo';
 import { bio } from '@/data/content';
 
 export default function Bio() {
   const ref = useRef<HTMLElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useScrollScrub(ref, videoRef, { mode: 'through' });
 
   return (
     <section
@@ -21,22 +18,19 @@ export default function Bio() {
       <div className="absolute -left-32 top-1/3 -z-10 h-96 w-96 rounded-full bg-acid/10 blur-3xl" />
       <div className="absolute -right-40 bottom-0 -z-10 h-96 w-96 rounded-full bg-flare/10 blur-3xl" />
 
-      <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-12 md:gap-16">
-        <div className="md:col-span-5">
-          {/* Sin marco ni recorte: el video se ve entero (object-contain) sobre
-              el fondo. En movil ocupa todo el ancho de la columna. */}
-          <div className="sticky top-24">
-            <video
-              ref={videoRef}
-              className="block h-auto w-full object-contain"
+      <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 md:grid-cols-12 md:gap-10">
+        <div className="md:col-span-7">
+          {/* Grande y ENTERO: ocupa toda su columna (~700px en desktop, mucho
+              mayor que antes) sin recortarse ni salirse por el borde. En movil
+              ocupa todo el ancho. El canvas usa la relacion natural del video. */}
+          <div className="w-full">
+            <ScrubVideo
               src={bio.video}
               poster={bio.videoPoster}
-              muted
-              playsInline
-              preload="auto"
-              autoPlay={false}
-              loop={false}
-              aria-hidden
+              sectionRef={ref}
+              mode="through"
+              wrapperClassName="w-full"
+              canvasClassName="block h-auto w-full"
             />
             <div className="mt-4 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.22em] text-bone-300">
               <span>FILE//DEMOTONE.TB303.EXPLODE</span>
@@ -45,7 +39,7 @@ export default function Bio() {
           </div>
         </div>
 
-        <div className="md:col-span-7">
+        <div className="md:col-span-5">
           <Reveal>
             <span className="eyebrow">// 01 &mdash; Bio</span>
           </Reveal>

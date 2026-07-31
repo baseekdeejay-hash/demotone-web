@@ -1,24 +1,18 @@
 'use client';
 
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-  useReducedMotion
-} from 'framer-motion';
-import { useRef, useEffect, useState } from 'react';
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { useRef } from 'react';
 import { ArrowDown, Play } from 'lucide-react';
 import ParticleField from './effects/ParticleField';
 import GlitchText from './effects/GlitchText';
 import Marquee from './effects/Marquee';
+import useScrollScrub from './effects/useScrollScrub';
 import { site } from '@/data/content';
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduce = useReducedMotion();
-  const [isMobile, setIsMobile] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -27,45 +21,9 @@ export default function Hero() {
   const yImg = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 80]);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0.2]);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia('(max-width: 768px), (pointer: coarse)');
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v || isMobile) return;
-    const prime = async () => {
-      try {
-        v.muted = true;
-        await v.play();
-        v.pause();
-        v.currentTime = 0;
-      } catch {
-        // ok
-      }
-    };
-    if (v.readyState >= 2) prime();
-    else v.addEventListener('loadeddata', prime, { once: true });
-  }, [isMobile]);
-
-  useMotionValueEvent(scrollYProgress, 'change', (progress) => {
-    const v = videoRef.current;
-    if (!v || isMobile || reduce) return;
-    const dur = v.duration;
-    if (!dur || isNaN(dur)) return;
-    // Acelera el video: completa los 5s a ~50% del scroll del Hero
-    // (cuando aun se ve el boton "Escuchar sets", antes del marquee inferior).
-    const p = Math.max(0, Math.min(1, progress * 2));
-    const targetTime = p * dur;
-    if (Math.abs(v.currentTime - targetTime) > 0.02) {
-      v.currentTime = targetTime;
-    }
-  });
+  // Scrubbing nativo: el de framer-motion no movia el video de forma fiable.
+  // speed 2 = completa los 5s a ~50% del scroll del Hero.
+  useScrollScrub(sectionRef, videoRef, { mode: 'exit', speed: 2 });
 
   return (
     <section

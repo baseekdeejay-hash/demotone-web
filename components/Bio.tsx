@@ -1,67 +1,15 @@
 'use client';
 
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-  useReducedMotion
-} from 'framer-motion';
-import { useRef, useEffect, useState } from 'react';
+import { useRef } from 'react';
 import Reveal from './effects/Reveal';
+import useScrollScrub from './effects/useScrollScrub';
 import { bio } from '@/data/content';
 
 export default function Bio() {
   const ref = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const reduce = useReducedMotion();
-  const [isMobile, setIsMobile] = useState(false);
 
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start end', 'end start']
-  });
-  const yImg = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -60]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia('(max-width: 768px), (pointer: coarse)');
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-
-  // Precarga: un play/pause silencioso deja el video listo para buscar frames.
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v || isMobile) return;
-    const prime = async () => {
-      try {
-        v.muted = true;
-        await v.play();
-        v.pause();
-        v.currentTime = 0;
-      } catch {
-        // ok
-      }
-    };
-    if (v.readyState >= 2) prime();
-    else v.addEventListener('loadeddata', prime, { once: true });
-  }, [isMobile]);
-
-  // Scrubbing: el scroll manda sobre el tiempo del video, en ambos sentidos.
-  useMotionValueEvent(scrollYProgress, 'change', (progress) => {
-    const v = videoRef.current;
-    if (!v || isMobile || reduce) return;
-    const dur = v.duration;
-    if (!dur || isNaN(dur)) return;
-    const p = Math.max(0, Math.min(1, progress));
-    const targetTime = p * dur;
-    if (Math.abs(v.currentTime - targetTime) > 0.02) {
-      v.currentTime = targetTime;
-    }
-  });
+  useScrollScrub(ref, videoRef, { mode: 'through' });
 
   return (
     <section
@@ -75,32 +23,26 @@ export default function Bio() {
 
       <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-12 md:gap-16">
         <div className="md:col-span-5">
-          <motion.div style={{ y: yImg }} className="sticky top-28">
-            <div className="relative aspect-[4/5] w-full overflow-hidden border border-ink-400/60 bg-ink-700">
-              <span className="absolute left-2 top-2 z-10 h-3 w-3 border-l border-t border-acid" />
-              <span className="absolute right-2 top-2 z-10 h-3 w-3 border-r border-t border-acid" />
-              <span className="absolute left-2 bottom-2 z-10 h-3 w-3 border-l border-b border-acid" />
-              <span className="absolute right-2 bottom-2 z-10 h-3 w-3 border-r border-b border-acid" />
-
-              <video
-                ref={videoRef}
-                className="absolute inset-0 h-full w-full object-cover"
-                src={bio.video}
-                poster={bio.videoPoster}
-                muted
-                playsInline
-                preload="auto"
-                autoPlay={false}
-                loop={false}
-                aria-hidden
-              />
-              <div className="pointer-events-none absolute inset-0 bg-scanlines opacity-25 mix-blend-overlay" />
-            </div>
+          {/* Sin marco ni recorte: el video se ve entero (object-contain) sobre
+              el fondo. En movil ocupa todo el ancho de la columna. */}
+          <div className="sticky top-24">
+            <video
+              ref={videoRef}
+              className="block h-auto w-full object-contain"
+              src={bio.video}
+              poster={bio.videoPoster}
+              muted
+              playsInline
+              preload="auto"
+              autoPlay={false}
+              loop={false}
+              aria-hidden
+            />
             <div className="mt-4 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.22em] text-bone-300">
-              <span>FILE//DEMOTONE.PORTRAIT.02</span>
+              <span>FILE//DEMOTONE.TB303.EXPLODE</span>
               <span className="text-acid">&bull;</span>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         <div className="md:col-span-7">

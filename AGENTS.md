@@ -227,7 +227,37 @@ Array `tracks` en `data/content.ts`. Tipo `Track`:
 Diferencia con `mixes`: en Música el iframe se carga **directo, sin miniatura ni clic
 previo**. Un YouTube aquí se embebe desde el primer render.
 
-### 4.4 Cambiar textos, bio, redes o email
+### 4.4 Vídeos con scroll-scrubbing (portada y bio)
+
+Hay dos vídeos que **no se reproducen solos**: avanzan y retroceden con el scroll.
+El Hero (`components/Hero.tsx`, `/videos/hero.mp4`) y la Bio (`components/Bio.tsx`,
+`/videos/bio.mp4`). El mecanismo es idéntico en los dos: `useScroll` sobre la sección +
+`useMotionValueEvent` que escribe `video.currentTime`. En móvil y con
+`prefers-reduced-motion` se desactiva y se ve el `poster`.
+
+**Para cambiar uno de esos vídeos hay que reencodearlo con keyframe en CADA frame.**
+Un MP4 normal trae un keyframe cada 1-2 segundos y el scrubbing va a tirones, porque el
+navegador solo puede saltar a keyframes. Con ffmpeg:
+
+```bash
+ffmpeg -y -i ORIGEN.mp4 -vf "crop=940:1176:(iw-940)/2:0,scale=960:1200:flags=lanczos" \
+  -c:v libx264 -preset slow -crf 26 -g 1 -keyint_min 1 -sc_threshold 0 \
+  -pix_fmt yuv420p -profile:v high -an -movflags +faststart public/videos/bio.mp4
+```
+
+Lo clave es `-g 1 -keyint_min 1 -sc_threshold 0` (todo keyframes) y `-an` (sin audio).
+El `crop`/`scale` depende del contenedor: el del Hero es cuadrado (1:1) y el de la Bio
+es vertical 4:5. Comprueba el resultado:
+
+```bash
+ffprobe -v error -select_streams v:0 -show_entries frame=key_frame -of csv=p=0 video.mp4
+# el numero de "1" debe ser ~igual al total de frames
+```
+
+Genera también el `poster` (`ffmpeg -i video.mp4 -frames:v 1 -q:v 3 poster.jpg`) y
+apunta las rutas en `data/content.ts`. Ojo al peso: mantenlos por debajo de ~6 MB.
+
+### 4.5 Cambiar textos, bio, redes o email
 
 Todo vive en `data/content.ts`: objetos `site`, `nav`, `bio`, `contact`. No hay textos
 duplicados en los componentes salvo los títulos de sección.

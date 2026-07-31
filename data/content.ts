@@ -28,6 +28,10 @@ export const nav = [
 export const bio = {
   image: '/images/bio.jpg',
   imageAlt: 'Retrato de Demotone',
+  // Video con scroll-scrubbing (avanza al bajar, retrocede al subir).
+  // Debe estar codificado con keyframe en cada frame o dara tirones (ver AGENTS.md).
+  video: '/videos/bio.mp4',
+  videoPoster: '/images/bio-poster.jpg',
   short:
     'DJ, productor y técnico de sonido nacido cerca de Barcelona. Más de dos décadas dedicadas a la música electrónica, con un sonido que combina la contundencia del techno, la energía del hardgroove y la intensidad de los ritmos tribales y los sonidos ácidos hipnóticos.',
   paragraphs: [

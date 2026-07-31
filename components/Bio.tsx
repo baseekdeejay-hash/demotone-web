@@ -29,7 +29,8 @@ export default function Bio() {
               src={bio.video}
               poster={bio.videoPoster}
               sectionRef={ref}
-              mode="through"
+              mode="exit"
+              speed={3}
               wrapperClassName="w-full"
               canvasClassName="block h-auto w-full"
             />

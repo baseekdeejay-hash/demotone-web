@@ -244,17 +244,19 @@ movimiento lo genera el usuario al hacer scroll, no se reproduce solo.
 
 **Para cambiar uno de esos vídeos hay que reencodearlo con keyframe en CADA frame.**
 Un MP4 normal trae un keyframe cada 1-2 segundos y el scrubbing va a tirones, porque el
-navegador solo puede saltar a keyframes. Con ffmpeg:
+navegador solo puede saltar a keyframes. Con ffmpeg (así se hizo el de la Bio):
 
 ```bash
-ffmpeg -y -i ORIGEN.mp4 -vf "crop=940:1176:(iw-940)/2:0,scale=960:1200:flags=lanczos" \
-  -c:v libx264 -preset slow -crf 26 -g 1 -keyint_min 1 -sc_threshold 0 \
+ffmpeg -y -i ORIGEN.mp4 -vf "scale=1200:800:flags=lanczos" \
+  -c:v libx264 -preset slow -crf 25 -g 1 -keyint_min 1 -sc_threshold 0 \
   -pix_fmt yuv420p -profile:v high -an -movflags +faststart public/videos/bio.mp4
 ```
 
 Lo clave es `-g 1 -keyint_min 1 -sc_threshold 0` (todo keyframes) y `-an` (sin audio).
-El `crop`/`scale` depende del contenedor: el del Hero es cuadrado (1:1) y el de la Bio
-es vertical 4:5. Comprueba el resultado:
+El `scale` depende del contenedor: el Hero (`/videos/hero.mp4`) es cuadrado (1:1,
+`object-cover`) y la Bio (`/videos/bio.mp4`) es apaisado 3:2 y se muestra **entero, sin
+recortar** (`object-contain`, canvas `w-full h-auto`) — así que **no lo recortes**.
+Comprueba el resultado:
 
 ```bash
 ffprobe -v error -select_streams v:0 -show_entries frame=key_frame -of csv=p=0 video.mp4
@@ -262,7 +264,20 @@ ffprobe -v error -select_streams v:0 -show_entries frame=key_frame -of csv=p=0 v
 ```
 
 Genera también el `poster` (`ffmpeg -i video.mp4 -frames:v 1 -q:v 3 poster.jpg`) y
-apunta las rutas en `data/content.ts`. Ojo al peso: mantenlos por debajo de ~6 MB.
+apunta las rutas en `data/content.ts` (`bio.video` / `bio.videoPoster` para la Bio; el
+Hero las lleva escritas en `components/Hero.tsx`). Ojo al peso: por debajo de ~6 MB.
+
+**Ajustar CUÁNDO empieza y a qué velocidad** (props de `ScrubVideo`, sin tocar el vídeo):
+
+- `mode="exit"` + `speed`: arranca cuando el top de la sección llega arriba del todo
+  (progreso 0 en `rect.top = 0`). Lo usa el Hero con `speed={2}`.
+- `startVh` + `rangeVh`: arranque a media pantalla. El vídeo se queda en el primer
+  fotograma hasta que el top de la sección baja de `startVh · alturaPantalla`, y completa
+  a lo largo de `rangeVh · alturaPantalla` de scroll. La Bio usa `startVh={0.5}`
+  (arranca a mitad de pantalla) y `rangeVh={0.7}`. Subir `startVh` = arranca antes;
+  bajarlo = arranca más tarde.
+- `ease` (def. `0.18`): suavizado. Más bajo = más inercia/fluido; más alto = más pegado
+  al scroll.
 
 ### 4.5 Cambiar textos, bio, redes o email
 
@@ -476,7 +491,8 @@ el historial de git (anterior al commit de borrado).
 | Cambiar email o redes sociales | `data/content.ts` → `contact` |
 | Cambiar items del menú | `data/content.ts` → `nav` |
 | Cambiar título/SEO/OG de la web | `app/layout.tsx` + `components/SeoJsonLd.tsx` |
-| Cambiar la foto del hero o de la bio | `public/images/` + rutas en `data/content.ts` |
+| Cambiar el vídeo scroll-scrub del hero o la bio | reencodear (todo keyframes) + rutas en `data/content.ts`/`Hero.tsx` (§4.4) |
+| Ajustar cuándo arranca / velocidad de esos vídeos | props de `ScrubVideo` (`startVh`, `rangeVh`, `speed`, `ease`) (§4.4) |
 | Cambiar colores o animaciones | `tailwind.config.ts` (+ `app/globals.css`) |
 | Permitir embeds de un servicio nuevo | `middleware.ts` (`frame-src`/`img-src`) (§5.4) |
 | Reordenar secciones | `app/page.tsx` (y renumerar los `.eyebrow`) |

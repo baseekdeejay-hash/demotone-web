@@ -41,6 +41,8 @@ export default function ScrubVideo({
   sectionRef,
   mode = 'through',
   speed = 1,
+  startVh,
+  rangeVh = 0.7,
   ease = 0.18,
   wrapperClassName = '',
   canvasClassName = ''
@@ -50,6 +52,16 @@ export default function ScrubVideo({
   sectionRef: RefObject<HTMLElement | null>;
   mode?: Mode;
   speed?: number;
+  /**
+   * Punto de arranque como fraccion del alto de pantalla, medido sobre el
+   * rect.top de la seccion. Si se define, ignora `mode`/`speed` y el video se
+   * queda en el primer fotograma hasta que rect.top baja de startVh*vh, y
+   * completa a lo largo de rangeVh*vh de scroll. Ej: 0.5 arranca cuando el top
+   * de la seccion llega a media pantalla (punto medio entre "nada mas asomar"
+   * y "seccion pegada arriba").
+   */
+  startVh?: number;
+  rangeVh?: number;
   ease?: number;
   wrapperClassName?: string;
   canvasClassName?: string;
@@ -86,11 +98,16 @@ export default function ScrubVideo({
       if (!dur || Number.isNaN(dur)) return;
       const rect = section.getBoundingClientRect();
       const vh = window.innerHeight || document.documentElement.clientHeight;
-      const raw =
-        mode === 'exit'
-          ? -rect.top / Math.max(1, rect.height)
-          : (vh - rect.top) / Math.max(1, rect.height + vh);
-      const p = Math.min(1, Math.max(0, raw * speed));
+      let raw: number;
+      if (startVh != null) {
+        // Arranca cuando rect.top baja de startVh*vh y completa en rangeVh*vh.
+        raw = (startVh * vh - rect.top) / Math.max(1, rangeVh * vh);
+      } else if (mode === 'exit') {
+        raw = (-rect.top / Math.max(1, rect.height)) * speed;
+      } else {
+        raw = ((vh - rect.top) / Math.max(1, rect.height + vh)) * speed;
+      }
+      const p = Math.min(1, Math.max(0, raw));
       target = p * dur;
     };
 
@@ -160,7 +177,7 @@ export default function ScrubVideo({
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, [sectionRef, mode, speed, ease]);
+  }, [sectionRef, mode, speed, startVh, rangeVh, ease]);
 
   return (
     <div className={`relative ${wrapperClassName}`}>

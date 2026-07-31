@@ -14,6 +14,13 @@ type Mode = 'through' | 'exit';
  * Aqui el <video> queda oculto como fuente y cada fotograma se dibuja en un
  * <canvas>, que siempre repinta. Es la tecnica estandar de scroll-scrubbing.
  *
+ * SUAVIZADO (para que no vaya a trompicones):
+ * No saltamos al fotograma exacto del scroll (eso, a 24fps, se ve a saltos).
+ * Guardamos un "objetivo" y un bucle rAF acerca el tiempo mostrado al objetivo
+ * con interpolacion (lerp), encadenando cada seek al evento 'seeked' anterior
+ * para no saturar el decodificador. El resultado es un movimiento fluido que
+ * persigue al scroll y frena suave al parar.
+ *
  * NO se desactiva con prefers-reduced-motion: el movimiento lo produce el
  * usuario al hacer scroll, no se reproduce solo.
  *
@@ -25,6 +32,8 @@ type Mode = 'through' | 'exit';
  * mode 'exit': progreso 0 con la seccion pegada arriba, 1 al terminar de salir
  *   (la portada, que ya esta visible al cargar).
  * speed multiplica el progreso: 2 completa el video a mitad de recorrido.
+ * ease: 0-1, cuanto se acerca al objetivo por frame. Mas bajo = mas suave y
+ *   con mas inercia; mas alto = mas pegado al scroll. 0.18 es un buen punto.
  */
 export default function ScrubVideo({
   src,
@@ -32,6 +41,7 @@ export default function ScrubVideo({
   sectionRef,
   mode = 'through',
   speed = 1,
+  ease = 0.18,
   wrapperClassName = '',
   canvasClassName = ''
 }: {
@@ -40,6 +50,7 @@ export default function ScrubVideo({
   sectionRef: RefObject<HTMLElement | null>;
   mode?: Mode;
   speed?: number;
+  ease?: number;
   wrapperClassName?: string;
   canvasClassName?: string;
 }) {
@@ -54,6 +65,11 @@ export default function ScrubVideo({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    let target = 0; // tiempo (s) al que apunta el scroll
+    let display = 0; // tiempo (s) que se muestra, persiguiendo a target
+    let active = false; // hay un bucle de suavizado corriendo
+    let raf = 0;
+
     const draw = () => {
       const w = video.videoWidth;
       const h = video.videoHeight;
@@ -65,8 +81,7 @@ export default function ScrubVideo({
       ctx.drawImage(video, 0, 0, w, h);
     };
 
-    let pending = false;
-    const update = () => {
+    const measure = () => {
       const dur = video.duration;
       if (!dur || Number.isNaN(dur)) return;
       const rect = section.getBoundingClientRect();
@@ -76,27 +91,49 @@ export default function ScrubVideo({
           ? -rect.top / Math.max(1, rect.height)
           : (vh - rect.top) / Math.max(1, rect.height + vh);
       const p = Math.min(1, Math.max(0, raw * speed));
-      const target = p * dur;
-      if (Math.abs(video.currentTime - target) > 0.01) {
-        video.currentTime = target; // dispara 'seeked' -> draw()
+      target = p * dur;
+    };
+
+    // Un solo paso de suavizado. Cada seek encadena el siguiente en 'seeked'.
+    const step = () => {
+      const diff = target - display;
+      if (Math.abs(diff) < 0.004) {
+        display = target;
+        active = false;
+        if (Math.abs(video.currentTime - display) > 0.008) {
+          video.currentTime = display; // ultimo ajuste fino
+        } else {
+          draw();
+        }
+        return;
+      }
+      display += diff * ease;
+      if (Math.abs(video.currentTime - display) > 0.008) {
+        video.currentTime = display; // 'seeked' -> draw + siguiente step
       } else {
+        // salto sub-frame: no vale la pena buscar, seguimos por rAF
         draw();
+        raf = requestAnimationFrame(step);
       }
     };
 
-    const onScroll = () => {
-      if (pending) return;
-      pending = true;
-      requestAnimationFrame(() => {
-        pending = false;
-        update();
-      });
+    const onSeeked = () => {
+      draw();
+      if (active) raf = requestAnimationFrame(step);
     };
 
-    const onSeeked = () => draw();
+    const onScroll = () => {
+      measure();
+      if (!active) {
+        active = true;
+        step();
+      }
+    };
+
     const onLoaded = () => {
-      draw();
-      update();
+      measure();
+      display = target;
+      video.currentTime = display;
     };
 
     video.addEventListener('seeked', onSeeked);
@@ -110,17 +147,20 @@ export default function ScrubVideo({
     window.addEventListener('resize', onScroll);
 
     if (video.readyState >= 2) {
+      measure();
+      display = target;
       draw();
-      update();
+      onScroll();
     }
 
     return () => {
+      if (raf) cancelAnimationFrame(raf);
       video.removeEventListener('seeked', onSeeked);
       video.removeEventListener('loadeddata', onLoaded);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, [sectionRef, mode, speed]);
+  }, [sectionRef, mode, speed, ease]);
 
   return (
     <div className={`relative ${wrapperClassName}`}>

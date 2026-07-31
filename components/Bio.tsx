@@ -18,12 +18,13 @@ export default function Bio() {
       <div className="absolute -left-32 top-1/3 -z-10 h-96 w-96 rounded-full bg-acid/10 blur-3xl" />
       <div className="absolute -right-40 bottom-0 -z-10 h-96 w-96 rounded-full bg-flare/10 blur-3xl" />
 
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 md:grid-cols-12 md:gap-10">
+      <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 md:grid-cols-12 md:gap-8">
         <div className="md:col-span-7">
-          {/* Grande y ENTERO: ocupa toda su columna (~700px en desktop, mucho
-              mayor que antes) sin recortarse ni salirse por el borde. En movil
-              ocupa todo el ancho. El canvas usa la relacion natural del video. */}
-          <div className="w-full">
+          {/* Grande y ENTERO. En md+ se estira hacia el borde izquierdo (hay
+              margen libre ahi) para ganar tamano sin recortarse ni tapar el
+              texto. En movil ocupa todo el ancho. El canvas usa la relacion
+              natural del video (w-full h-auto). */}
+          <div className="md:-ml-6 2xl:-ml-32">
             <ScrubVideo
               src={bio.video}
               poster={bio.videoPoster}
@@ -32,10 +33,6 @@ export default function Bio() {
               wrapperClassName="w-full"
               canvasClassName="block h-auto w-full"
             />
-            <div className="mt-4 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.22em] text-bone-300">
-              <span>FILE//DEMOTONE.TB303.EXPLODE</span>
-              <span className="text-acid">&bull;</span>
-            </div>
           </div>
         </div>
 
